@@ -1,0 +1,11 @@
+{
+    "extends": ["@tsconfig/node24", "@tsconfig/node-ts"],
+    "compilerOptions": {
+        // We use Node.js to natively run, this is just for type checking
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "rewriteRelativeImportExtensions": false,
+        "typeRoots": ["node_modules/@types"]
+    },
+    "include": ["src", "vitest.config.ts"]
+}
