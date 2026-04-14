@@ -5,12 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { verifyToken } from '../functions/cookies.ts';
 import auth from '../middleware/auth.ts';
-import { validateTodo } from '../schemas/todo.ts';
 import type TodoRepository from '../repositories/todo.ts';
+import { validateTodo } from '../schemas/todo.ts';
 
 dayjs.extend(utc);
 
-export default ({ todoRepository }: { todoRepository: TodoRepository } ) => {
+export default ({ todoRepository }: { todoRepository: TodoRepository }) => {
     const router = express.Router();
 
     // Create new todo

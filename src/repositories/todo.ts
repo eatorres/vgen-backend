@@ -1,5 +1,6 @@
-import type { Collection, Db } from "mongodb";
-import type { Todo } from "../schemas/todo.ts";
+import type { Collection, Db } from 'mongodb';
+
+import type { Todo } from '../schemas/todo.ts';
 
 export default class TodoRepository {
     private readonly collection: Collection<Todo>;

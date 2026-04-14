@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import express from 'express';
+import type { WithId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 
 import { deleteCookies, setSessionCookie, verifyToken } from '../functions/cookies.ts';
 import { hashPassword, comparePassword } from '../functions/passwords.ts';
 import auth from '../middleware/auth.ts';
-import { validateUser, type User } from '../schemas/user.ts';
 import type UserRepository from '../repositories/user.ts';
-import type { WithId } from 'mongodb';
+import { validateUser, type User } from '../schemas/user.ts';
 
 dayjs.extend(utc);
 
@@ -20,7 +20,7 @@ export default ({ userRepository }: { userRepository: UserRepository }) => {
         try {
             let session = verifyToken(req.cookies['todox-session']);
 
-            const user = await userRepository.findOneById(session.userID) as Partial<WithId<User>> | null;
+            const user = (await userRepository.findOneById(session.userID)) as Partial<WithId<User>> | null;
 
             if (!user) {
                 return res.status(400).send({});
@@ -59,7 +59,7 @@ export default ({ userRepository }: { userRepository: UserRepository }) => {
     // Login route for non-signed-in users
     router.post('/session', async (req, res) => {
         try {
-            let user = await userRepository.findOneByUsername(req.body.username) as Partial<WithId<User>> | null;
+            let user = (await userRepository.findOneByUsername(req.body.username)) as Partial<WithId<User>> | null;
             if (!user) {
                 return res.status(401).send({ error: 'Unauthorized.' });
             }
@@ -112,7 +112,7 @@ export default ({ userRepository }: { userRepository: UserRepository }) => {
 
             newUser.password = await hashPassword(newUser.password);
 
-            let resultUser = await userRepository.createIfNotExists(newUser) as Partial<WithId<User>> | null;
+            let resultUser = (await userRepository.createIfNotExists(newUser)) as Partial<WithId<User>> | null;
             if (!resultUser) {
                 return res.status(400).send({ error: 'Username already in use.' });
             }
