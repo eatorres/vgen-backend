@@ -13,6 +13,18 @@ dayjs.extend(utc);
 export default ({ todoRepository }: { todoRepository: TodoRepository }) => {
     const router = express.Router();
 
+    // List todos for the signed-in user
+    router.get('/', auth, async (req, res) => {
+        try {
+            const session = verifyToken(req.cookies['todox-session']);
+            const todos = await todoRepository.findByUserId(session.userID);
+            return res.status(200).send(todos);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send({ error: 'Failed to fetch todos.' });
+        }
+    });
+
     // Create new todo
     router.post('/', auth, async (req, res) => {
         try {
