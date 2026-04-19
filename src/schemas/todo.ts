@@ -7,6 +7,7 @@ export const TodoSchema = z
         todoID: z.string(),
         userID: z.string(),
         name: z.string(),
+        status: z.enum(['incomplete', 'completed']),
         created: z.iso.datetime(),
     })
     .meta({ description: 'Todo' });

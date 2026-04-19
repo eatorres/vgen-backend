@@ -13,4 +13,11 @@ export default class TodoRepository {
     async insertOne(todo: Todo) {
         return await this.collection.insertOne(todo);
     }
+
+    async findByUserId(userID: string): Promise<Todo[]> {
+        return await this.collection
+            .find({ userID })
+            .sort({ created: -1 })
+            .toArray();
+    }
 }
