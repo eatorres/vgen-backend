@@ -14,4 +14,13 @@ export const TodoSchema = z
 
 export type Todo = z.infer<typeof TodoSchema>;
 
+export const PatchTodoStatusSchema = z
+    .object({
+        status: z.enum(['incomplete', 'completed']),
+    })
+    .meta({ description: 'PatchTodoStatus' });
+
+export type PatchTodoStatus = z.infer<typeof PatchTodoStatusSchema>;
+
 export const validateTodo = createValidator(TodoSchema);
+export const validatePatchTodoStatus = createValidator(PatchTodoStatusSchema);
