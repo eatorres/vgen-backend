@@ -20,4 +20,16 @@ export default class TodoRepository {
             .sort({ created: -1 })
             .toArray();
     }
+
+    async updateStatusById(
+        todoID: string,
+        userID: string,
+        status: Todo['status'],
+    ): Promise<Todo | null> {
+        return await this.collection.findOneAndUpdate(
+            { todoID, userID },
+            { $set: { status } },
+            { returnDocument: 'after' },
+        );
+    }
 }

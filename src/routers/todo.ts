@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { verifyToken } from '../functions/cookies.ts';
 import auth from '../middleware/auth.ts';
 import type TodoRepository from '../repositories/todo.ts';
-import { validateTodo } from '../schemas/todo.ts';
+import { validatePatchTodoStatus, validateTodo } from '../schemas/todo.ts';
 
 dayjs.extend(utc);
 
@@ -49,6 +49,35 @@ export default ({ todoRepository }: { todoRepository: TodoRepository }) => {
         } catch (err) {
             console.error(err);
             return res.status(500).send({ error: 'Todo creation failed.' });
+        }
+    });
+
+    // Patch todo status (completed | incomplete, same as stored values / UI)
+    router.patch('/:todoID', auth, async (req, res) => {
+        try {
+            const session = verifyToken(req.cookies['todox-session']);
+            const parsed = validatePatchTodoStatus(req.body);
+            if (!parsed) {
+                return res.status(400).send({ error: 'Invalid field used.' });
+            }
+
+            const todoIDParam = req.params['todoID'];
+            const todoID = Array.isArray(todoIDParam) ? todoIDParam[0] : todoIDParam;
+
+            const updated = await todoRepository.updateStatusById(
+                todoID,
+                session.userID,
+                parsed.status,
+            );
+
+            if (!updated) {
+                return res.status(404).send({ error: 'Todo not found.' });
+            }
+
+            return res.status(200).send(updated);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send({ error: 'Todo update failed.' });
         }
     });
 
