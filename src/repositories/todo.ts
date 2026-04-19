@@ -21,14 +21,14 @@ export default class TodoRepository {
             .toArray();
     }
 
-    async updateStatusById(
+    async updateById(
         todoID: string,
         userID: string,
-        status: Todo['status'],
+        patch: Partial<Pick<Todo, 'status' | 'name'>>,
     ): Promise<Todo | null> {
         return await this.collection.findOneAndUpdate(
             { todoID, userID },
-            { $set: { status } },
+            { $set: patch },
             { returnDocument: 'after' },
         );
     }

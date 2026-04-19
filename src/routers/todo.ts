@@ -6,7 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { verifyToken } from '../functions/cookies.ts';
 import auth from '../middleware/auth.ts';
 import type TodoRepository from '../repositories/todo.ts';
-import { validatePatchTodoStatus, validateTodo } from '../schemas/todo.ts';
+import type { Todo } from '../schemas/todo.ts';
+import { validatePatchTodo, validateTodo } from '../schemas/todo.ts';
 
 dayjs.extend(utc);
 
@@ -52,11 +53,11 @@ export default ({ todoRepository }: { todoRepository: TodoRepository }) => {
         }
     });
 
-    // Patch todo status (completed | incomplete, same as stored values / UI)
+    // Patch todo (partial: status or name)
     router.patch('/:todoID', auth, async (req, res) => {
         try {
             const session = verifyToken(req.cookies['todox-session']);
-            const parsed = validatePatchTodoStatus(req.body);
+            const parsed = validatePatchTodo(req.body);
             if (!parsed) {
                 return res.status(400).send({ error: 'Invalid field used.' });
             }
@@ -64,10 +65,14 @@ export default ({ todoRepository }: { todoRepository: TodoRepository }) => {
             const todoIDParam = req.params['todoID'];
             const todoID = Array.isArray(todoIDParam) ? todoIDParam[0] : todoIDParam;
 
-            const updated = await todoRepository.updateStatusById(
+            const patch: Partial<Pick<Todo, 'status' | 'name'>> = {};
+            if (parsed.status !== undefined) patch.status = parsed.status;
+            if (parsed.name !== undefined) patch.name = parsed.name;
+
+            const updated = await todoRepository.updateById(
                 todoID,
                 session.userID,
-                parsed.status,
+                patch,
             );
 
             if (!updated) {

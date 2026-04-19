@@ -14,13 +14,17 @@ export const TodoSchema = z
 
 export type Todo = z.infer<typeof TodoSchema>;
 
-export const PatchTodoStatusSchema = z
+export const PatchTodoSchema = z
     .object({
-        status: z.enum(['incomplete', 'completed']),
+        status: z.enum(['incomplete', 'completed']).optional(),
+        name: z.string().optional(),
     })
-    .meta({ description: 'PatchTodoStatus' });
+    .refine((body) => body.status !== undefined || body.name !== undefined, {
+        message: 'At least one of status or name is required',
+    })
+    .meta({ description: 'PatchTodo' });
 
-export type PatchTodoStatus = z.infer<typeof PatchTodoStatusSchema>;
+export type PatchTodo = z.infer<typeof PatchTodoSchema>;
 
 export const validateTodo = createValidator(TodoSchema);
-export const validatePatchTodoStatus = createValidator(PatchTodoStatusSchema);
+export const validatePatchTodo = createValidator(PatchTodoSchema);
